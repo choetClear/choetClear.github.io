@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>choetClear</title>
+    <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/101548786"/>
+    <script src="certificates/test.js"></script>
+    <script>
+        // var pubkey = "-----BEGIN PUBLIC KEY-----" +
+        //     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCySknaSO9x/IZCUtXeB3SZjbCX/ASBdNOM5aBZL6T2+JDmYiDxIMA/9vEFLpK" +
+        //     "tMt9uIGyWawBZYbEVQT82jdcU0KTwCQJHpPZUMws8JYOH2xxOZlXrIelMkXqV2Un3lbfGoibcKEVGujYafEfCfyACgvx34r/vReVn6CTynp" +
+        //     "3WUTys3HYWM1wiVVnwLYLpHJ41H7ayJHFq1kS7B4wf/d1RI8NaM1lNWLMoCo/oVY4m4r6WjEkvx9P4Fw0A9nRd7UBJyUbpCaVwHaOPF4WVJ" +
+        //     "enL3zEDjNlSzYEM+RKGOj2C0M0hf/vHcwh2mNdUCj4WRorBh/1+1sTGMP2tYAQhjSwIDAQAB" +
+        //     "-----END PUBLIC KEY-----";
+        var pubkey = undefined;
+    </script>
+
+
+</head>
+<body>
+<div style="text-align: center">
+    <h2>Authorization verification</h2>
+    <br>
+    <textarea id="put" placeholder="Your Digital Fingerprinting..."
+              style="border:0;border-radius:5px;background-color:rgba(241,241,241,.98);width: 355px;height: 160px;padding: 10px;resize: none;"
+    ></textarea>
+    <br>
+    <br>
+    <button class="trans-operation" style="font-size: 14px" onclick="f()">verify</button>
+
+    <br>
+    <br>
+    <div id="show" style="display: none">
+        <table border="1" style="width: 50%;height: 10%" align="center">
+            <tr>
+                <td>version</td>
+                <td id="version"></td>
+            </tr>
+
+            <tr>
+                <td>country name</td>
+                <td id="cn"></td>
+            </tr>
+            <tr>
+                <td>file name</td>
+                <td id="fn"></td>
+            </tr>
+            <tr>
+                <td>author name</td>
+                <td id="author"></td>
+            </tr>
+            <tr>
+                <td>signature algorithm</td>
+                <td id="signName"></td>
+            </tr>
+            <tr>
+                <td>signature</td>
+                <td id="sign"></td>
+            </tr>
+            <tr>
+                <td>expiration</td>
+                <td id="ex"></td>
+            </tr>
+            <tr>
+                <td>sign by</td>
+                <td id="signBy"></td>
+            </tr>
+            <tr style="border-color: lawngreen"></tr>
+            <tr style="color: #a02f16">
+                <td>content</td>
+                <td>other</td>
+            </tr>
+            <tr>
+                <td><textarea id="content"
+                              style="border: 0px;background-color:rgba(241,241,241,.98);width: 170px;height: 80px;resize: none;"
+                ></textarea></td>
+                <td><textarea id="other"
+                              style="border: 0px;background-color:rgba(241,241,241,.98);width: 170px;height: 80px;resize: none;"
+                ></textarea></td>
+            </tr>
+
+        </table>
+    </div>
+</div>
+<script>
+    var data = {
+        plainText: "",
+        plain: {},
+        sign: ""
+    };
+
+
+    function verify(pubkey, sign, plainText) {
+        // 构建Signature实例
+        // 这里 prvkeypem 放公钥pem看起来有点怪, 但是这是可行的, 内部还是使用的上文经常出现的 KEYUTIL.getKey(pk) 来生成公钥实例的
+        var sign4Java = new KJUR.crypto.Signature({alg: "SHA1withRSA", prvkeypem: pubkey});
+        sign4Java.updateString(plainText);
+        // Java生成签名
+        var b2 = sign4Java.verify(b64utohex(sign));
+        return b2;
+    }
+
+
+    function getVerify(input) {
+        var strings = input.split("***");
+        var encode = new Base64();
+        var text = encode.decode(strings[0]);
+        data.plainText = text;
+        var texts = text.split("\n");
+        data.plain = {
+            version: texts[0].split(":")[1],
+            countryName: texts[1].split(":")[1],
+            fileName: texts[2].split(":")[1],
+            authorName: texts[3].split(":")[1],
+            signatureAlgorithm: texts[4].split(":")[1],
+            signature: texts[5].split(":")[1],
+            content: texts[6].split(":")[1],
+            ex: texts[7].split(":")[1],
+            other: texts[8].split(":")[1],
+            signBy: texts[9].split(":")[1]
+        };
+        data.sign = strings[1];
+    }
+
+    function f() {
+        try {
+            data = {
+                plainText: "",
+                plain: {},
+                sign: ""
+            };
+            var input = document.getElementById("put").value;
+            var auth = input.replace("\n", "");
+            getVerify(auth);
+            var message = verify(pubkey, data.sign, data.plainText);
+            console.log(message);
+            if (message) {
+                setContent("version", data.plain.version);
+                setContent("cn", data.plain.countryName);
+                setContent("fn", data.plain.fileName);
+                setContent("author", data.plain.authorName);
+                setContent("signName", data.plain.signatureAlgorithm);
+                setContent("sign", data.plain.signature);
+                setContent("ex", data.plain.ex);
+                setContent("signBy", data.plain.signBy);
+                setContent("content", data.plain.content);
+                setContent("other", data.plain.other);
+                document.getElementById("show").style = "display: block";
+                if (!checkTime(data.plain.ex)) {
+                    document.getElementById("ex").style = "color:red"
+                }
+            } else {
+                alert("verification is wrong");
+            }
+        } catch (e) {
+            console.log(e);
+            alert("verification is wrong");
+        }
+    }
+
+    function setContent(id, str) {
+        try {
+            document.getElementById(id).innerText = str;
+        } catch (e) {
+            console.log(e + ":::id=" + id + ":::")
+        }
+
+    }
+
+    function checkTime(timeStr) {
+        var endTime = timeStr.split("-")[1];
+        var endes = endTime.split(".");
+        var date = new Date(endes[0], Number(endes[1]) - 1, endes[2]);
+        return (date.getTime() >= new Date().getTime());
+    }
+
+    function init() {
+        var url = "https://choetclear.github.io/certificates/publicKey.txt";
+        var ajax = new XMLHttpRequest();
+        ajax.open('get', url);
+        ajax.send();
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState == 4 && ajax.status == 200) {
+                pubkey = ajax.responseText
+            }
+        }
+    }
+
+    (function () {
+        init();
+    })();
+</script>
+</body>
+</html>
