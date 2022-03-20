@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* css注释内容 */
+        table {
+            /* 为当前元素设置边框(边框宽度、样式、颜色) */
+            border: 1px solid #daecff;
+            /* 设置表格边框和单元格边框合并 */
+            border-collapse: collapse;
+            /* 为表格设置背景颜色 */
+            background: lightgrey;
+            /* width: 70%; */
+            /* 设置边框左右外边距自适应,即左右外边距保持相等 */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        td, th {
+            border: 2px solid #d7ffdf;
+            /* 设置边框和内容的距离(内边距) */
+            padding: 3px;
+        }
+
+        h1 {
+            /* 设置元素内容水平居中 */
+            text-align: center;
+        }
+
+        input {
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+<div id="data" style="display: none">
+    <properties>
+        <comment>2</comment>
+        <entry key="country">US</entry>
+        <entry key="fileName">demo file</entry>
+        <entry key="author">your name</entry>
+        <entry key="signAlg">signature algorithm names</entry>
+        <entry key="signature">signature code</entry>
+        <entry key="content">no content</entry>
+        <entry key="expiration">2012.6.3-2023.3.3</entry>
+        <entry key="other">no other</entry>
+    </properties>
+</div>
+<div style="text-align: center">
+    <h1>build your apply.xml</h1>
+    <div id="input" style="display: block">
+        <table>
+            <tr>
+                <td>country</td>
+                <td>
+                    <input type="text" name="country" placeholder="you can fill in full name"/>
+                </td>
+            </tr>
+            <tr>
+                <td>fileName</td>
+                <td>
+                    <input type="text" name="fileName" placeholder="the name of your file"/>
+                </td>
+            </tr>
+            <tr>
+                <td>author</td>
+                <td>
+                    <input type="text" name="author" placeholder="your full name or nick name"/>
+                </td>
+            </tr>
+            <tr>
+                <td>signature algorithm</td>
+                <td>
+                    <input type="text" name="signAlg" placeholder=""/>
+                </td>
+            </tr>
+            <tr>
+                <td>signature code</td>
+                <td>
+                    <input type="text" name="signature" placeholder=""/>
+                </td>
+            </tr>
+            <tr>
+                <td>expiration</td>
+                <td>
+                    <input type="text" name="expiration" placeholder="yyyy.mm.dd-yyyy.mm.dd"/>
+                </td>
+            </tr>
+            <td>content</td>
+            <td>
+              <textarea name="content" cols="50" rows="5"
+                        placeholder="You can fill in the abstract of your document. You may fill in after encoding with base64.only contain numbers, characters, ! @ # $ % ? + - * / = ;base64 demo:  data:text/plain;charset=UTF-8;base64,YmFzZTY0IGNvbnRlbnQ="></textarea>
+            </td>
+            </tr>
+            </tr>
+            <td>other</td>
+            <td>
+              <textarea name="other" cols="50" rows="5"
+                        placeholder="Optional filling.Don't fill in at will"></textarea>
+            </td>
+            </tr>
+
+            <tr>
+                <td colspan="2" style="text-align:center;">
+                    <button onclick="f()">build your apply.xml</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br>
+    <div id="show" style="display: none">
+        <textarea id="result" readonly
+                  style="border:0;border-radius:5px;background-color:rgba(241,241,241,.98);width: 500px;height: 280px;padding: 10px;resize: none;"></textarea>
+        <br>
+        <button> copy your apply.xml</button>
+    </div>
+
+</div>
+<script>
+    var begin = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n"
+
+    function f() {
+        fillIn();
+        document.getElementById("input").style = "display: none";
+        var data = document.getElementById("data").innerHTML;
+        var res = document.getElementById("result");
+        res.value = (begin + data);
+        document.getElementById("show").style = "display:";
+    }
+
+    function fillIn() {
+        var entry = document.getElementsByTagName("entry");
+        for (var i = 0; i < entry.length; i++) {
+            var key = document.getElementsByTagName("entry")[i].getAttribute("key");
+            var v = document.getElementsByName(key)[0];
+            document.getElementsByTagName("entry")[i].innerText = v.value;
+            // console.log(v.value)
+        }
+    }
+
+    function copy() {
+        document.getElementById("result").select();
+        document.execCommand("copy")
+    }
+</script>
+
+</body>
+</html>
