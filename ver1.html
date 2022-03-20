@@ -91,11 +91,8 @@
 
 
     function verify(pubkey, sign, plainText) {
-        // 构建Signature实例
-        // 这里 prvkeypem 放公钥pem看起来有点怪, 但是这是可行的, 内部还是使用的上文经常出现的 KEYUTIL.getKey(pk) 来生成公钥实例的
         var sign4Java = new KJUR.crypto.Signature({alg: "SHA1withRSA", prvkeypem: pubkey});
         sign4Java.updateString(plainText);
-        // Java生成签名
         var b2 = sign4Java.verify(b64utohex(sign));
         return b2;
     }
@@ -107,6 +104,7 @@
         var text = encode.decode(strings[0]);
         data.plainText = text;
         var texts = text.split("\n");
+        // console.log(texts)
         data.plain = {
             version: texts[0].split(":")[1],
             countryName: texts[1].split(":")[1],
@@ -123,8 +121,8 @@
     }
 
     function f() {
-        document.getElementById("show").style = "display: none";
         try {
+            document.getElementById("show").style = "display: none";
             data = {
                 plainText: "",
                 plain: {},
@@ -144,7 +142,7 @@
                 setContent("sign", data.plain.signature);
                 setContent("ex", data.plain.ex);
                 setContent("signBy", data.plain.signBy);
-                setContent("content", data.plain.content);
+                setContent("content", new Base64().decode(data.plain.content));
                 setContent("other", data.plain.other);
                 document.getElementById("show").style = "display: block";
                 if (!checkTime(data.plain.ex)) {

@@ -4,29 +4,23 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="certificates/test.js"></script>
+    <link rel="icon" type="image/png" href="https://avatars.githubusercontent.com/u/101548786">
     <style>
-        /* css注释内容 */
         table {
-            /* 为当前元素设置边框(边框宽度、样式、颜色) */
             border: 1px solid #daecff;
-            /* 设置表格边框和单元格边框合并 */
             border-collapse: collapse;
-            /* 为表格设置背景颜色 */
             background: lightgrey;
-            /* width: 70%; */
-            /* 设置边框左右外边距自适应,即左右外边距保持相等 */
             margin-left: auto;
             margin-right: auto;
         }
 
         td, th {
             border: 2px solid #d7ffdf;
-            /* 设置边框和内容的距离(内边距) */
             padding: 3px;
         }
 
         h1 {
-            /* 设置元素内容水平居中 */
             text-align: center;
         }
 
@@ -91,9 +85,11 @@
             </tr>
             <td>content</td>
             <td>
-              <textarea name="content" cols="50" rows="5"
-                        placeholder="You can fill in the abstract of your document. You may fill in after encoding with base64.only contain numbers, characters, ! @ # $ % ? + - * / = ;base64 demo:  data:text/plain;charset=UTF-8;base64,YmFzZTY0IGNvbnRlbnQ="></textarea>
+              <textarea name="contentTemp" cols="50" rows="5"
+                        placeholder="1.You can fill in the abstract of your document. &#13;&#10;2.Only a paragraph and less than 50 bytes"></textarea>
+                <textarea name="content" style="display: none"></textarea>
             </td>
+
             </tr>
             </tr>
             <td>other</td>
@@ -123,6 +119,8 @@
     var begin = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n"
 
     function f() {
+        var value = document.getElementsByName("contentTemp")[0].value;
+        document.getElementsByName("content")[0].value=new Base64().encode(value);
         fillIn();
         document.getElementById("input").style = "display: none";
         var data = document.getElementById("data").innerHTML;
